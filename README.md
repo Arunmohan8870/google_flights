@@ -1,6 +1,6 @@
 # FlightSearch - Google Flights
 
-A responsive flight search application built with React, TypeScript, and Tailwind CSS. Search, filter, and compare flights with a modern, intuitive interface.
+A responsive flight search application built with React, Material-UI, TypeScript, and Tailwind CSS. Search, filter, and compare flights with a modern, intuitive interface.
 
 ## ✈️ Features
 
