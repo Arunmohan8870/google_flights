@@ -1,65 +1,77 @@
-// src/services/FlightService.ts
-import { useEffect } from "react";
-import mockData from "../data/flights.json";
 
-const api = () => {
-  useEffect(() => {
-    const response = fetch(
-      "https://api.aviationstack.com/v1/flights?access_key=3fc6207d36d250f12cff2ab5567578af"
-    );
-  }, []);
+const API_URL = 'https://sky-scrapper.p.rapidapi.com/api/v1/flights/getFlightDetails';
+const HEADERS:any = {
+  'X-Rapidapi-Key': import.meta.env.VITE_RAPIDAPI_KEY,
+  'X-Rapidapi-Host': 'sky-scrapper.p.rapidapi.com',
 };
 
+
 export class FlightService {
-  // Simulate API search
-  static async searchFlights(searchData) {
+ static async searchFlights(searchData) {
     try {
       const date = searchData.departureDate.toISOString().split("T")[0];
 
+      const legs = encodeURIComponent(
+        JSON.stringify([
+          {
+            origin: searchData.origin,     
+            destination: searchData.destination,  
+            date: date,            
+          },
+        ])
+      );
 
-      const results = mockData.filter((flight) => {
-        const departureCity = flight.from?.toLowerCase();
-        const arrivalCity = flight.to?.toLowerCase();
-        const flightDate = flight.departureDate?.split("T")[0];
-        console.log(departureCity);
-
-        return (
-          departureCity?.includes(searchData.origin.toLowerCase()) &&
-          arrivalCity?.includes(searchData.destination.toLowerCase()) &&
-          flightDate === date
-        );
+      const params = new URLSearchParams({
+        legs: legs,
+        adults: "1",
+        currency: "USD",
+        locale: "en-US",
+        market: "en-US",
+        cabinClass: "economy",
+        countryCode: "US",
       });
-      console.log(results);
 
-      const transformed = this.transformApiResponse(results);
+      const res = await fetch(`${API_URL}?${params}`, {
+        method: 'GET',
+        headers: HEADERS,
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch flights");
+      }
+
+      const json = await res.json();
+      const flights = json.flights || [];
+
+      const transformed = this.transformApiResponse(flights);
 
       return {
         success: true,
         data: transformed,
       };
     } catch (error) {
-      console.error("Error in flight search:", error);
+      console.error("Flight API Error:", error);
       return {
         success: false,
-        error: "Failed to fetch flights",
+        error: "Unable to fetch flights at the moment.",
       };
     }
   }
 
   static transformApiResponse(data) {
-    return data.map((flight) => ({
-      id: flight.id,
-      price: flight.price,
-      airline: flight.airline,
+    return data.map((flight, index) => ({
+      id: index,
+      price: flight.price || 0,
+      airline: flight.airlineName || 'Unknown',
       stops: flight.stops || 0,
-      duration: flight.duration,
+      duration: flight.duration || '',
       departure: {
-        airport: flight.from,
+        airport: flight.departureCity,
         time: flight.departureTime,
         date: flight.departureDate,
       },
       arrival: {
-        airport: flight.to,
+        airport: flight.arrivalCity,
         time: flight.arrivalTime,
         date: flight.arrivalDate,
       },
