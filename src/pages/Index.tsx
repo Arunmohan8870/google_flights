@@ -9,7 +9,23 @@ import { useToast } from '@/hooks/use-toast';
 import { Plane, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { AppBar, Box, Container, styled, Toolbar, Typography } from '@mui/material';
+import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
+const StyledAppBar = styled(AppBar)(({ theme }) => ({
+  backgroundColor: 'rgba(255, 255, 255, 0.9)',
+  backdropFilter: 'blur(4px)',
+  borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
+  boxShadow: 'none',
+}));
 
+const IconWrapper = styled(Box)(({ theme }) => ({
+  backgroundColor: theme.palette.primary.main,
+  padding: theme.spacing(1),
+  borderRadius: theme.shape.borderRadius,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+}));
 const Index = () => {
   const [flights, setFlights] = useState<Flight[]>([]);
   const [filteredFlights, setFilteredFlights] = useState<Flight[]>([]);
@@ -17,7 +33,7 @@ const Index = () => {
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
   const { toast } = useToast();
-console.log(filteredFlights,"Filtered Flights")
+  console.log(filteredFlights, "Filtered Flights")
   const [filters, setFilters] = useState<FlightFilters>({
     maxPrice: 1000,
     stops: [],
@@ -32,12 +48,12 @@ console.log(filteredFlights,"Filtered Flights")
 
     try {
       const response = await FlightService.searchFlights(searchData);
-      
+
       if (response.success && response.data) {
         setFlights(response.data);
         setFilteredFlights(response.data);
-        
-        // Reset filters for new search
+
+
         const maxPrice = Math.max(...response.data.map(f => f.price));
         setFilters({
           maxPrice: maxPrice,
@@ -89,29 +105,33 @@ console.log(filteredFlights,"Filtered Flights")
 
   return (
     <div className="min-h-screen bg-gradient-sky">
-      {/* Header */}
-      <div className="bg-white/90 backdrop-blur-sm border-b border-white/20 sticky top-0 z-40">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary rounded-lg">
-              <Plane className="h-6 w-6 text-white" />
-            </div>
-            <h1 className="text-2xl font-bold">FlightSearch</h1>
-          </div>
-        </div>
-      </div>
 
-      {/* Main content */}
+      <StyledAppBar position="sticky" elevation={0}>
+        <Container maxWidth="lg">
+          <Toolbar disableGutters sx={{ py: 2 }}>
+            <Box display="flex" alignItems="center" gap={2}>
+              <IconWrapper>
+                <FlightTakeoffIcon sx={{ color: '#fff', fontSize: 28 }} />
+              </IconWrapper>
+              <Typography color="text.primary" variant="h5" fontWeight="bold">
+                FlightSearch
+              </Typography>
+            </Box>
+          </Toolbar>
+        </Container>
+      </StyledAppBar>
+
+
       <div className="container mx-auto px-4 py-8">
-        {/* Search form */}
+
         <div className="mb-8">
           <FlightSearchForm onSearch={handleSearch} loading={loading} />
         </div>
 
-        {/* Results section */}
+
         {hasSearched && (
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {/* Filters sidebar - desktop */}
+
             <div className="hidden lg:block">
               <FlightFiltersComponent
                 filters={filters}
@@ -122,7 +142,7 @@ console.log(filteredFlights,"Filtered Flights")
               />
             </div>
 
-            {/* Mobile filters */}
+
             <div className="lg:hidden mb-4">
               <Sheet>
                 <SheetTrigger asChild>
@@ -143,7 +163,7 @@ console.log(filteredFlights,"Filtered Flights")
               </Sheet>
             </div>
 
-            {/* Flight results */}
+
             <div className="lg:col-span-3 space-y-4">
               {loading ? (
                 <div className="flex items-center justify-center py-12">
@@ -176,18 +196,33 @@ console.log(filteredFlights,"Filtered Flights")
                   ))}
                 </>
               ) : hasSearched && flights.length === 0 ? (
-                <div className="text-center py-12">
-                  <Plane className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold mb-2">No flights found</h3>
-                  <p className="text-muted-foreground">
+                <Box textAlign="center" py={8}>
+                  <FlightTakeoffIcon
+                    sx={{
+                      fontSize: 64,
+                      color: 'text.secondary',
+                      mb: 2,
+                    }}
+                  />
+                  <Typography variant="h6" fontWeight="600" gutterBottom>
+                    No flights found
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
                     Try adjusting your search criteria or dates
-                  </p>
-                </div>
+                  </Typography>
+                </Box>
               ) : (
                 <div className="text-center py-12">
-                  <p className="text-muted-foreground">
+                  {/* <p className="text-muted-foreground"> */}
+                  <Typography
+                    variant="body1"
+                    color="text.secondary"
+                    sx={{ mb: 4 }}
+                  >
                     No flights match your current filters
-                  </p>
+                  </Typography>
+
+                  {/* </p> */}
                   <Button
                     variant="outline"
                     onClick={handleClearFilters}
@@ -201,20 +236,40 @@ console.log(filteredFlights,"Filtered Flights")
           </div>
         )}
 
-        {/* Empty state */}
+
         {!hasSearched && (
-          <div className="text-center py-16">
-            <div className="max-w-md mx-auto">
-              <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Plane className="h-10 w-10 text-primary" />
-              </div>
-              <h2 className="text-2xl font-bold mb-4">Find Your Perfect Flight</h2>
-              <p className="text-muted-foreground mb-6">
-                Search thousands of flights from airlines worldwide. Compare prices, 
+          <Box textAlign="center" py={10}>
+            <Container maxWidth="sm">
+              <Box
+                width={80}
+                height={80}
+                mx="auto"
+                mb={4}
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                borderRadius="50%"
+                sx={{
+                  backgroundColor: (theme) => theme.palette.primary.main + '1A',
+                }}
+              >
+                <FlightTakeoffIcon sx={{ color: 'primary.main', fontSize: 40 }} />
+              </Box>
+
+              <Typography variant="h5" fontWeight="bold" gutterBottom>
+                Find Your Perfect Flight
+              </Typography>
+
+              <Typography
+                variant="body1"
+                color="text.secondary"
+                sx={{ mb: 4 }}
+              >
+                Search thousands of flights from airlines worldwide. Compare prices,
                 times, and find the best deals for your next trip.
-              </p>
-            </div>
-          </div>
+              </Typography>
+            </Container>
+          </Box>
         )}
       </div>
     </div>

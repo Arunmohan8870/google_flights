@@ -76,7 +76,7 @@ export const FlightFiltersComponent: React.FC<FlightFiltersProps> = ({
       </CardHeader>
       
       <CardContent className="space-y-6">
-        {/* Price Range */}
+     
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="font-medium">Price Range</h3>

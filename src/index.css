@@ -2,7 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Flight booking app design system - Sky blue theme with travel aesthetics */
+*{
+  font-family: 'Poppins', sans-serif;
+}
 
 @layer base {
   :root {
